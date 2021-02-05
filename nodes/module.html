@@ -1,0 +1,271 @@
+<!--
+  Copyright 2021 Ocean (iot.redplc@gmail.com).
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/javascript">
+    RED.nodes.registerType('module-update', {
+        category: 'redPlc module',
+        color: 'ORANGERED',
+        paletteLabel: 'update',
+        defaults: {
+            tupdate: { value: 50,  required: true,  validate: function(v) { return RED.validators.number(v) && (v >= 5) && (v <= 10000); } },
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "font-awesome/fa-refresh",
+        label: function() { return "update " + this.tupdate + "ms"; }
+    });
+</script>
+
+<script type="text/html" data-template-name="module-update">
+    <div class="form-row">
+        <label style="width:100%; border-bottom: 1px solid #eee;">redPlc Module Node Update</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-tupdate"><i class="fa fa-refresh"></i> t-Update</label>
+        <input id="node-input-tupdate" placeholder="Update (ms)" input type="number" min="5" max="10000" required style="width: auto;">
+        <label for="node-input-tupdate"> ms</label>
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('module-in', {
+        category: 'redPlc module',
+        color: 'SkyBlue',
+        paletteLabel: 'input',
+        defaults: {
+            operand: { value: "I", required: true },
+            address: { value: 0, required: true, validate: function (v) { return (RED.validators.number(v) && (v >= 0) && (v <= 999)); } },
+            index: { value: 0, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 15); } },
+            bit: { value: 0, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 31); } },
+            onchange: { value: true },
+            showvalue: { value: true },
+            invert: { value: false },
+            tofix: { value: 3, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 20); } },
+            tocut: { value: 0, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 100); } },
+            tupdate: { value: 10, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 5) && (v <= 10000); } },
+            name: { value: "" }
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "font-awesome/fa-sign-in",
+        label: function () {
+            switch (this.operand) {
+                case "I":
+                    return this.operand + this.address + "." + this.bit + (this.invert ? "*" : "");
+                case "IA":
+                case "IS":
+                    return this.operand + this.address + "[" + this.index + "]";
+            }
+        },
+        oneditprepare: function () {
+            function init_operand(operand) {
+                $("#bit-dot").hide();
+                $("#node-input-bit").hide();
+                $("#open-index").hide();
+                $("#node-input-index").hide();
+                $("#close-index").hide();
+                $("#div-tofix").hide();
+                $("#div-tocut").hide();
+                $("#div-invert").hide();
+
+                switch (operand) {
+                    case "I":
+                        $("#bit-dot").show();
+                        $("#node-input-bit").show();
+                        $("#div-invert").show();
+                        break;
+                    case "IA":
+                        $("#div-tofix").show();
+                        $("#open-index").show();
+                        $("#node-input-index").show();
+                        $("#close-index").show();
+                        break;
+                    case "IS":
+                        $("#div-tocut").show();
+                        $("#open-index").show();
+                        $("#node-input-index").show();
+                        $("#close-index").show();
+                        break;
+                }
+            }
+
+            $("#node-input-operand").on("change", function () { init_operand(this.value); }).change();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="module-in">
+    <div class="form-row">
+        <label style="width:100%; border-bottom: 1px solid #eee;">redPlc Module Node Input</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-operand"><i class="fa fa-sign-in"></i> Operand</label>
+        <select type="text" id="node-input-operand" style="width: auto;">
+            <option value="I">I</option>
+            <option value="IA">IA</option>
+            <option value="IS">IS</option>
+        </select>
+        <input id="node-input-address" placeholder="Address" value=0 input type="number" min="0" max="999" required style="width: auto;">
+        <label id="bit-dot" style="width: auto;"><b>.</b></label>
+        <input id="node-input-bit" placeholder="bit" value=0 input type="number" min="0" max="31" required style="width: auto;">
+        <label id="open-index" style="width: auto;"><b>[</b></label>
+        <input id="node-input-index" placeholder="Index" value=0 input type="number" min="0" max="15" required style="width: auto;">
+        <label id="close-index" style="width: auto;"><b>]</b></label>
+    </div>
+    <div id="div-invert" class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-invert" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-invert" style="width: 70%;"> Invert Bit</label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-onchange" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-onchange" style="width: 70%;"> Send On Change</label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-showvalue" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-showvalue" style="width: 70%;"> Show Value in Status</label>
+    </div>
+    <div id="div-tofix" class="form-row">
+        <label for="node-input-tofix"><i class="fa fa-scissors"></i> Dec. Fix</label>
+        <input id="node-input-tofix" placeholder="after decimal" value=3 input type="number" min="0" max="20" required style="width: auto;">
+        <label style="width: auto;">0 = No Digit after Decimalpoint</label>
+    </div>
+    <div id="div-tocut" class="form-row">
+        <label for="node-input-tocut"><i class="fa fa-scissors"></i> Cut</label>
+        <input id="node-input-tocut" placeholder="after decimal" value=0 input type="number" min="0" max="100" required style="width: auto;">
+        <label style="width: auto;">0 = No Cut String</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-tupdate"><i class="fa fa-refresh"></i> t-Update</label>
+        <input id="node-input-tupdate" placeholder="Update (ms)" input type="number" min="5" max="10000" required style="width: auto;">
+        <label for="node-input-tupdate"> ms</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" style="width: auto;">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('module-out', {
+        category: 'redPlc module',
+        color: 'YellowGreen',
+        paletteLabel: 'output',
+        defaults: {
+            operand: { value: "Q", required: true },
+            address: { value: 0, required: true, validate: function (v) { return (RED.validators.number(v) && (v >= 0) && (v <= 999)); } },
+            index: { value: 0, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 15); } },
+            bit: { value: 0, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 31); } },
+            showvalue: { value: true },
+            invert: { value: false },
+            tofix: { value: 3, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 20); } },
+            tocut: { value: 0, required: true, validate: function (v) { return RED.validators.number(v) && (v >= 0) && (v <= 100); } },
+            name: { value: "" }
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: "font-awesome/fa-sign-out",
+        label: function () {
+            switch (this.operand) {
+                case "Q":
+                    return  this.operand + this.address + "." + this.bit + (this.invert ? "*" : "");
+                case "QA":
+                case "QS":
+                    return this.operand + this.address + "[" + this.index + "]";
+            }
+        },
+        oneditprepare: function () {
+            function init_operand(operand) {
+                $("#bit-dot").hide();
+                $("#node-input-bit").hide();
+                $("#open-index").hide();
+                $("#node-input-index").hide();
+                $("#close-index").hide();
+                $("#div-tofix").hide();
+                $("#div-tocut").hide();
+                $("#div-invert").hide();
+
+                switch (operand) {
+                    case "Q":
+                        $("#bit-dot").show();
+                        $("#node-input-bit").show();
+                        $("#div-invert").show();
+                        break;
+                    case "QA":
+                        $("#div-tofix").show();
+                        $("#open-index").show();
+                        $("#node-input-index").show();
+                        $("#close-index").show();
+                        break;
+                    case "QS":
+                        $("#div-tocut").show();
+                        $("#open-index").show();
+                        $("#node-input-index").show();
+                        $("#close-index").show();
+                        break;
+                }
+            }
+
+            $("#node-input-operand").on("change", function () { init_operand(this.value); }).change();
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="module-out">
+    <div class="form-row">
+        <label style="width:100%; border-bottom: 1px solid #eee;">redPlc Module Node Output</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-operand"><i class="fa fa-sign-in"></i> Operand</label>
+        <select type="text" id="node-input-operand" style="width: auto;">
+            <option value="Q">Q</option>
+            <option value="QA">QA</option>
+            <option value="QS">QS</option>
+        </select>
+        <input id="node-input-address" placeholder="Address" value=0 input type="number" min="0" max="999" required style="width: auto;">
+        <label id="bit-dot" style="width: auto;"><b>.</b></label>
+        <input id="node-input-bit" placeholder="bit" value=0 input type="number" min="0" max="31" required style="width: auto;">
+        <label id="open-index" style="width: auto;"><b>[</b></label>
+        <input id="node-input-index" placeholder="Index" value=0 input type="number" min="0" max="15" required style="width: auto;">
+        <label id="close-index" style="width: auto;"><b>]</b></label>
+    </div>
+    <div id="div-invert" class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-invert" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-invert" style="width: 70%;"> Invert Bit</label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-showvalue" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-showvalue" style="width: 70%;"> Show Value in Status</label>
+    </div>
+    <div id="div-tofix" class="form-row">
+        <label for="node-input-tofix"><i class="fa fa-scissors"></i> Dec. Fix</label>
+        <input id="node-input-tofix" placeholder="after decimal" value=3 input type="number" min="0" max="20" required style="width: auto;">
+        <label style="width: auto;">0 = No Digit after Decimalpoint</label>
+    </div>
+    <div id="div-tocut" class="form-row">
+        <label for="node-input-tocut"><i class="fa fa-scissors"></i> Cut</label>
+        <input id="node-input-tocut" placeholder="after decimal" value=0 input type="number" min="0" max="100" required style="width: auto;">
+        <label style="width: auto;">0 = No Cut String</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" style="width: auto;">
+    </div>
+</script>

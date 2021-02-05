@@ -1,0 +1,72 @@
+<!--
+  Copyright 2021 Ocean (iot.redplc@gmail.com).
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<script type="text/html" data-help-name="module-update">
+    <p>redPlc Module Node Update</p>
+    <h3><b>Outputs:</b></h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">string</span></dt>
+            <dd>value string <b>"input"</b> or <b>"output"</b></dd>
+    </dl>
+    <h3><b>Details:</b></h3>
+    <p>
+        This node updates the redPlc module nodes cyclical.<br>
+        Output payload toggles between "input" and "ouput".<br>
+	</p>
+</script>
+
+<script type="text/html" data-help-name="module-in">
+    <p>redPlc Module Node Input</p>
+    <h3><b>Output:</b></h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">boolean</span></dt>
+            <dd>Digital Input</dd>
+        <dt>payload <span class="property-type">number</span></dt>
+            <dd>Analog Input</dd>
+        <dt>payload <span class="property-type">string</span></dt>
+            <dd>Text Input</dd>
+        <dt>topic <span class="property-type">string</span></dt>
+            <dd>variable or name</dd>
+        <dt>label <span class="property-type">string</span></dt>
+            <dd>variable or name</dd>
+    </dl>
+    <h3><b>Details:</b></h3>
+    <p>
+        This node reads the global variable<br>
+        and sends to output.<br>
+        Depends on global variable datatype,<br>
+        output payload is boolean, number or string.<br>
+    </p>
+</script>
+
+<script type="text/html" data-help-name="module-out">
+    <p>redPlc Module Node Output</p>
+    <h3><b>Input:</b></h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">boolean</span></dt>
+            <dd>Digital Output</dd>
+        <dt>payload <span class="property-type">number</span></dt>
+            <dd>Analog Output</dd>
+        <dt>payload <span class="property-type">string</span></dt>
+            <dd>Text Output</dd>
+    </dl>
+    <h3><b>Details:</b></h3>
+    <p>
+        This node writes input payload to global variables.<br>
+        Depends on global variable datatype,<br>
+        input payload is boolean, number or string.<br>
+    </p>
+</script>
